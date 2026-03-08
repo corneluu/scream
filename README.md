@@ -3,8 +3,7 @@
 > A voice-controlled endless runner — **scream to run, stop to end**.
 
 ## Play Online
-👉 **[https://YOUR-USERNAME.github.io/YOUR-REPO-NAME](https://YOUR-USERNAME.github.io/YOUR-REPO-NAME)**
-*(replace with your actual GitHub Pages URL after deploy)*
+👉 **[https://corneluu.github.io/scream](https://corneluu.github.io/scream)**
 
 ## How to Play
 1. Click **PRESS TO START** and allow microphone access
