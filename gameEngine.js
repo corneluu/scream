@@ -70,8 +70,8 @@ const GameEngine = (() => {
     function drawHallway(dt) {
         const w = W(), h = H();
 
-        // Scroll offset advances with speed
-        const scrollRate = (_speed / GAME_CONFIG.AUDIO.MAX_SPEED) * 0.9;
+        // Scroll offset advances with speed (4x faster than original 0.9)
+        const scrollRate = (_speed / GAME_CONFIG.AUDIO.MAX_SPEED) * 3.6;
         hallOffset = (hallOffset + scrollRate * dt) % 1;
 
         // ── 1. Sky/wall background ──────────────────────────────────────────────
@@ -253,12 +253,14 @@ const GameEngine = (() => {
         const phase = (_runFrame / FRAMES) * Math.PI * 2;
         const speedFactor = Math.min(_speed / GAME_CONFIG.AUDIO.MAX_SPEED, 1);
 
-        // Reset any lingering shadow from hallway drawing
-        ctx.shadowBlur = 0;
-        ctx.shadowColor = 'transparent';
+        // Bobbing: vertical oscillation based on run phase
+        const bob = Math.abs(Math.cos(phase)) * sc * 0.04;
+        // Lean: forward tilt based on speed
+        const lean = speedFactor * 0.12;
 
         ctx.save();
-        ctx.translate(baseX, baseY);
+        ctx.translate(baseX, baseY - bob);
+        ctx.rotate(lean);
 
         // Ground shadow oval
         ctx.save();
@@ -307,26 +309,49 @@ const GameEngine = (() => {
         ctx.shadowColor = glowColor;
         ctx.shadowBlur = 18;
 
-        // Legs
-        const lA = Math.sin(phase) * 0.5 * (0.3 + spd * 0.7);
-        const rA = Math.sin(phase + Math.PI) * 0.5 * (0.3 + spd * 0.7);
-        ctx.strokeStyle = pantsColor;
-        ctx.lineWidth = s * 0.14;
+        // Legs: Thigh -> Shin -> Foot
+        const stride = phase;
         ctx.lineCap = 'round';
-        const lkx = Math.sin(lA) * s * 0.4;
-        const lky = Math.cos(lA) * s * 0.5;
-        ctx.beginPath();
-        ctx.moveTo(0, -s * 0.05);
-        ctx.lineTo(lkx, lky);
-        ctx.lineTo(lkx + Math.sin(lA * 1.5) * s * 0.35, lky + s * 0.35);
-        ctx.stroke();
-        const rkx = Math.sin(rA) * s * 0.4;
-        const rky = Math.cos(rA) * s * 0.5;
-        ctx.beginPath();
-        ctx.moveTo(0, -s * 0.05);
-        ctx.lineTo(rkx, rky);
-        ctx.lineTo(rkx + Math.sin(rA * 1.5) * s * 0.35, rky + s * 0.35);
-        ctx.stroke();
+        ctx.lineWidth = s * 0.14;
+
+        // Left Leg - Moved up to -0.42s to attach to torso
+        drawLeg(0, -s * 0.42, stride, pantsColor, bodyColor, s);
+        // Right Leg
+        drawLeg(0, -s * 0.42, stride + Math.PI, pantsColor, bodyColor, s);
+
+        function drawLeg(x, y, p, pColor, bColor, scale) {
+            const angle1 = Math.sin(p) * 0.6; // Thigh angle
+            const angle2 = Math.cos(p) * 0.5 + 0.5; // Knee bend (0 to 1 rad)
+
+            const thighLen = scale * 0.35;
+            const shinLen = scale * 0.32;
+
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(angle1);
+
+            // Thigh
+            ctx.strokeStyle = pColor;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, thighLen);
+            ctx.stroke();
+
+            // Shin
+            ctx.translate(0, thighLen);
+            ctx.rotate(angle2);
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, shinLen);
+            ctx.stroke();
+
+            // Foot/Shoe (White sneaker)
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.ellipse(scale * 0.08, shinLen, scale * 0.12, scale * 0.05, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        }
 
         // Torso (jacket)
         ctx.shadowBlur = 10;
@@ -400,25 +425,42 @@ const GameEngine = (() => {
         ctx.shadowBlur = 18;
 
         // Legs
-        const lA = Math.sin(phase) * 0.4 * (0.3 + spd * 0.7);
-        const rA = Math.sin(phase + Math.PI) * 0.4 * (0.3 + spd * 0.7);
-        ctx.strokeStyle = legColor;
-        ctx.lineWidth = s * 0.12;
+        const stride = phase;
         ctx.lineCap = 'round';
-        const lkx = Math.sin(lA) * s * 0.35;
-        const lky = s * 0.25 + Math.cos(lA) * s * 0.35;
-        ctx.beginPath();
-        ctx.moveTo(0, s * 0.05);
-        ctx.lineTo(lkx, lky);
-        ctx.lineTo(lkx + Math.sin(lA * 1.3) * s * 0.3, lky + s * 0.3);
-        ctx.stroke();
-        const rkx = Math.sin(rA) * s * 0.35;
-        const rky = s * 0.25 + Math.cos(rA) * s * 0.35;
-        ctx.beginPath();
-        ctx.moveTo(0, s * 0.05);
-        ctx.lineTo(rkx, rky);
-        ctx.lineTo(rkx + Math.sin(rA * 1.3) * s * 0.3, rky + s * 0.3);
-        ctx.stroke();
+        ctx.lineWidth = s * 0.12;
+        // Girl has purple-ish stockings/legs
+        drawGirlLeg(0, s * 0.05, stride, legColor, s);
+        drawGirlLeg(0, s * 0.05, stride + Math.PI, legColor, s);
+
+        function drawGirlLeg(x, y, p, color, scale) {
+            const angle1 = Math.sin(p) * 0.5;
+            const angle2 = Math.cos(p) * 0.4 + 0.4;
+            const thighLen = scale * 0.32;
+            const shinLen = scale * 0.3;
+
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(angle1);
+            ctx.strokeStyle = color;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, thighLen);
+            ctx.stroke();
+
+            ctx.translate(0, thighLen);
+            ctx.rotate(angle2);
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, shinLen);
+            ctx.stroke();
+
+            // Foot (Pink flat)
+            ctx.fillStyle = '#ffb3ba';
+            ctx.beginPath();
+            ctx.ellipse(scale * 0.06, shinLen, scale * 0.1, scale * 0.04, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        }
 
         // Skirt — trapezoid with outline
         ctx.shadowBlur = 8;
@@ -533,9 +575,9 @@ const GameEngine = (() => {
         _distance += mps * dt * GAME_CONFIG.GAME.DISTANCE_MULTIPLIER;
         _maxSpeed = Math.max(_maxSpeed, _speed);
 
-        // Runner animation frame
+        // Runner animation frame (8x faster than original 0.5 + speed/30)
         if (_speed > 1) {
-            _runFrameTimer += dt * (0.5 + _speed / 30);
+            _runFrameTimer += dt * (4.0 + _speed * 0.267);
             if (_runFrameTimer >= 1) { _runFrameTimer = 0; _runFrame = (_runFrame + 1) % FRAMES; }
         }
 
@@ -577,6 +619,11 @@ const GameEngine = (() => {
         hallOffset = 0;
         _onTick = onTick; _onGameOver = onGameOver;
         _lastTime = performance.now();
+
+        // Critical: force canvas resize after the game container is shown
+        // This fixes the 0x0 size issue when display:none is swapped to active
+        setTimeout(() => resizeCanvas(), 50);
+
         _rafId = requestAnimationFrame(_frame);
     }
 
