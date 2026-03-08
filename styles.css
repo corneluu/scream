@@ -417,15 +417,16 @@ body::before {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  background: linear-gradient(180deg, rgba(15, 15, 25, 0.8) 0%, rgba(10, 10, 20, 0.4) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  padding: 16px 40px;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(78, 205, 196, 0.05);
-  margin-top: 10px;
+  gap: 2px;
+  background: rgba(10, 10, 25, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 24px;
+  padding: 20px 60px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(78, 205, 196, 0.1);
+  margin-top: 15px;
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .hud-item {
@@ -435,54 +436,56 @@ body::before {
 }
 
 .hud-label {
-  font-size: .7rem;
-  font-weight: 700;
-  letter-spacing: 0.25em;
+  font-size: .8rem;
+  font-weight: 800;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.5);
   font-family: var(--font-game);
-  margin-bottom: 2px;
+  margin-bottom: -5px;
 }
 
 .hud-value-wrap {
   display: flex;
   align-items: baseline;
-  gap: 4px;
+  gap: 8px;
 }
 
 .hud-value {
   font-family: var(--font-game);
-  font-size: 3.2rem;
-  /* Much larger */
+  font-size: 5rem;
+  /* EXTREMELY BIG */
   font-weight: 900;
   color: #fff;
-  line-height: 0.9;
-  text-shadow: 0 0 20px rgba(78, 205, 196, 0.5);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  text-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
 }
 
 .hud-value.speed {
   color: var(--neon-cyan);
-  text-shadow: 0 0 25px rgba(78, 205, 196, 0.6);
+  text-shadow: 0 0 40px rgba(78, 205, 196, 0.7);
 }
 
 .hud-value.distance {
-  font-size: 2rem;
+  font-size: 3rem;
+  /* BIGGER */
   color: var(--neon-yellow);
-  text-shadow: 0 0 20px rgba(255, 230, 109, 0.4);
+  text-shadow: 0 0 30px rgba(255, 230, 109, 0.5);
 }
 
 .hud-unit {
-  font-size: 0.9rem;
-  font-weight: 800;
-  color: var(--text-muted);
-  text-transform: lowercase;
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
 }
 
 .hud-divider {
-  width: 60px;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--border), transparent);
-  margin: 8px 0;
+  width: 120px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  margin: 5px 0;
 }
 
 /* Sound bar - Redesigned for Premium LED feel */
@@ -495,70 +498,70 @@ body::before {
 }
 
 .sound-bar-wrap {
-  background: rgba(10, 10, 20, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
-  padding: 16px 24px;
-  width: min(500px, 90vw);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  background: rgba(10, 10, 20, 0.4);
+  border-radius: 24px;
+  padding: 12px 30px;
+  width: min(600px, 90vw);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
 }
 
 .sound-bar-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
+  gap: 15px;
 }
 
 .sound-bar-label {
   font-family: var(--font-game);
   font-size: .8rem;
-  font-weight: 700;
-  letter-spacing: 0.15em;
+  font-weight: 800;
+  letter-spacing: 0.4em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .sound-db-text {
   font-family: var(--font-game);
-  font-size: 1rem;
-  font-weight: 800;
-  color: var(--neon-yellow);
-  text-shadow: 0 0 10px rgba(255, 230, 109, 0.3);
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: #fff;
+  min-width: 80px;
+  text-align: center;
 }
 
 .sound-bar-track {
   position: relative;
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-  height: 18px;
-  /* Taller */
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  height: 10px;
+  /* Slimmer for minimalism */
   overflow: hidden;
-  padding: 3px;
 }
 
 .sound-bar-fill {
   height: 100%;
-  border-radius: 4px;
+  border-radius: 10px;
   background: linear-gradient(90deg, #4ecdc4, #ffe66d, #ff6b6b);
-  background-size: 500px 100%;
-  transition: width .06s ease-out;
-  box-shadow: 0 0 15px rgba(78, 205, 196, 0.4);
+  background-size: 600px 100%;
+  transition: width .08s ease-out;
+  box-shadow: 0 0 20px rgba(78, 205, 196, 0.5);
 }
 
-/* Segmented LED overlay effect */
+/* More subtle minimalist segments */
 .sound-bar-track::after {
   content: '';
   position: absolute;
   inset: 0;
   background-image: linear-gradient(90deg,
-      transparent 0px,
-      transparent 4px,
-      rgba(10, 10, 20, 0.6) 4px,
-      rgba(10, 10, 20, 0.6) 6px);
-  background-size: 6px 100%;
+      rgba(10, 10, 20, 0.3) 0px,
+      rgba(10, 10, 20, 0.3) 2px,
+      transparent 2px,
+      transparent 12px);
+  background-size: 12px 100%;
   pointer-events: none;
 }
 
