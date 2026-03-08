@@ -70,8 +70,8 @@ const GameEngine = (() => {
     function drawHallway(dt) {
         const w = W(), h = H();
 
-        // Scroll offset advances with speed (4x faster than original 0.9)
-        const scrollRate = (_speed / GAME_CONFIG.AUDIO.MAX_SPEED) * 3.6;
+        // Scroll offset advances with speed (8x faster than original 0.9)
+        const scrollRate = (_speed / GAME_CONFIG.AUDIO.MAX_SPEED) * 7.2;
         hallOffset = (hallOffset + scrollRate * dt) % 1;
 
         // ── 1. Sky/wall background ──────────────────────────────────────────────
@@ -575,9 +575,9 @@ const GameEngine = (() => {
         _distance += mps * dt * GAME_CONFIG.GAME.DISTANCE_MULTIPLIER;
         _maxSpeed = Math.max(_maxSpeed, _speed);
 
-        // Runner animation frame (8x faster than original 0.5 + speed/30)
+        // Runner animation frame (16x faster than original 0.5 + speed/30)
         if (_speed > 1) {
-            _runFrameTimer += dt * (4.0 + _speed * 0.267);
+            _runFrameTimer += dt * (8.0 + _speed * 0.533);
             if (_runFrameTimer >= 1) { _runFrameTimer = 0; _runFrame = (_runFrame + 1) % FRAMES; }
         }
 
