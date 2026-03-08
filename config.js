@@ -25,9 +25,9 @@ const GAME_CONFIG = {
     DISTANCE_MULTIPLIER: 1.0,      // Scale total distance
     SESSION_TIMEOUT_MS: 8000,      // Auto-end after X ms of silence while running
     GROUND_SPEED_RATIO: 0.003,     // pixels scrolled per km/h per frame
-    OBSTACLE_START_DISTANCE: 150,  // meters before first obstacle appears
-    OBSTACLE_INTERVAL_MIN: 80,     // min meters between obstacles
-    OBSTACLE_INTERVAL_MAX: 200,    // max meters between obstacles
+    OBSTACLE_START_DISTANCE: 10,  // meters before first obstacle appears
+    OBSTACLE_INTERVAL_MIN: 10,     // min meters between obstacles
+    OBSTACLE_INTERVAL_MAX: 40,    // max meters between obstacles
     PARTICLE_COUNT: 40,            // max dust particles
   },
 

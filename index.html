@@ -126,22 +126,27 @@
 
     <!-- HUD Overlay -->
     <div class="hud" aria-live="polite">
-      <!-- Top row -->
-      <div class="hud-top">
-        <div class="hud-panel">
+      <!-- Central HUD: Speed & Distance -->
+      <div class="hud-central" id="hud-main-panel">
+        <div class="hud-item" id="hud-speed-group">
           <div class="hud-label" data-i18n="SPEED_LABEL">Speed</div>
-          <div class="hud-value"><span id="hud-speed">0</span><span class="hud-unit" data-i18n="KMH_UNIT">km/h</span>
+          <div class="hud-value-wrap">
+            <span class="hud-value speed" id="hud-speed">0</span>
+            <span class="hud-unit" data-i18n="KMH_UNIT">km/h</span>
           </div>
         </div>
-
-        <div class="hud-char-badge" id="hud-char-name">Runner</div>
-
-        <div class="hud-panel" style="text-align:right">
+        <div class="hud-divider"></div>
+        <div class="hud-item" id="hud-dist-group">
           <div class="hud-label" data-i18n="DISTANCE_LABEL">Distance</div>
-          <div class="hud-value"><span id="hud-distance">0</span><span class="hud-unit" data-i18n="METERS_UNIT">m</span>
+          <div class="hud-value-wrap">
+            <span class="hud-value distance" id="hud-distance">0</span>
+            <span class="hud-unit" data-i18n="METERS_UNIT">m</span>
           </div>
         </div>
       </div>
+
+      <!-- Character badge: floating -->
+      <div class="hud-char-badge" id="hud-char-name" style="position:absolute; top:20px; right:20px;">Runner</div>
 
       <!-- Bottom: sound bar -->
       <div class="hud-bottom">
@@ -153,8 +158,8 @@
           <div class="sound-bar-track">
             <div class="sound-bar-fill" id="sound-bar-fill" style="width:0%"></div>
             <div class="peak-marker" id="peak-marker" style="left:0%"></div>
-            <!-- Threshold line at ~50% -->
-            <div class="threshold-line" style="left:45%"></div>
+            <!-- Threshold line -->
+            <div class="threshold-line" id="hud-threshold-line" style="left:45%"></div>
           </div>
         </div>
       </div>
@@ -170,24 +175,27 @@
       <p class="go-char-badge" id="go-char-name"></p>
 
       <p class="go-dist-label" data-i18n="DISTANCE_LABEL">Distance</p>
-      <p class="go-dist"><span id="go-distance">0</span><span style="font-size:1.2rem">m</span></p>
+      <p class="go-dist"><span id="go-distance">0</span><small style="font-size:1.2rem; margin-left:4px;"
+          data-i18n="METERS_UNIT">m</small></p>
 
       <div class="best-chip-wrap">
-        <div class="best-chip">🏆 <span data-i18n="BEST_SCORE">Best</span>: <span id="go-best">0</span>m</div>
+        <div class="best-chip">🏆 <span data-i18n="BEST_SCORE">Best</span>: <span id="go-best">0</span><small
+            data-i18n="METERS_UNIT">m</small></div>
       </div>
 
       <div class="stats-grid mt-16">
         <div class="stat-box">
           <div class="label" data-i18n="MAX_SPEED_LABEL">Max Speed</div>
-          <div class="value"><span id="go-maxspeed">0</span> <small>km/h</small></div>
+          <div class="value"><span id="go-maxspeed">0</span> <small data-i18n="KMH_UNIT">km/h</small></div>
         </div>
         <div class="stat-box">
           <div class="label" data-i18n="AVG_DB_LABEL">Avg Volume</div>
-          <div class="value"><span id="go-avgdb">0</span> <small>dB</small></div>
+          <div class="value"><span id="go-avgdb">0</span> <small data-i18n="DB_LABEL">dB</small></div>
         </div>
         <div class="stat-box highlight" style="grid-column:1/-1">
           <div class="label" data-i18n="SESSION_TIME_LABEL">Scream Time</div>
-          <div class="value" style="font-size:1.8rem"><span id="go-time">0</span><small>s</small></div>
+          <div class="value" style="font-size:1.8rem"><span id="go-time">0</span><small
+              data-i18n="SECONDS_UNIT">s</small></div>
         </div>
       </div>
 

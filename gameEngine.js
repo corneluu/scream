@@ -71,6 +71,13 @@ const GameEngine = (() => {
     function drawHallway(dt) {
         const w = W(), h = H();
 
+        // ── 0. Camera Shake at High Speed ──────────────────────────────────────
+        ctx.save();
+        if (_speed > 80) {
+            const shake = (_speed / 120) * 3.5;
+            ctx.translate((Math.random() - 0.5) * shake, (Math.random() - 0.5) * shake);
+        }
+
         // Scroll offset advances with speed (8x faster than original 0.9)
         const scrollRate = (_speed / GAME_CONFIG.AUDIO.MAX_SPEED) * 7.2;
         hallOffset = (hallOffset + scrollRate * dt) % 1;
@@ -249,6 +256,8 @@ const GameEngine = (() => {
             ctx.fillStyle = vGrad;
             ctx.fillRect(0, 0, w, h);
         }
+
+        ctx.restore(); // end camera shake
     }
 
     function drawNeonStrip(near, far, color, lw, blur) {
@@ -322,22 +331,32 @@ const GameEngine = (() => {
         ctx.globalAlpha = 1;
         ctx.restore();
 
-        // Speed motion-blur lines
-        if (_speed > 15) {
-            const lineAlpha = Math.min(speedFactor * 0.7, 0.7);
+        // Speed motion-blur lines (Juiced Up)
+        if (_speed > 12) {
+            const lineAlpha = Math.min(speedFactor * 0.85, 0.85);
+            const lineCount = _speed > 60 ? 8 : 4;
             ctx.strokeStyle = `rgba(78,205,196,${lineAlpha.toFixed(2)})`;
-            ctx.lineWidth = 2;
-            ctx.lineCap = 'butt';
-            for (let i = 0; i < 5; i++) {
-                const len = 30 + speedFactor * 80;
-                const ly = -sc * (0.25 + i * 0.16);
+            ctx.lineWidth = 2.5;
+            ctx.lineCap = 'round';
+            for (let i = 0; i < lineCount; i++) {
+                const seed = (i * 0.77 + performance.now() * 0.01);
+                const len = 40 + speedFactor * 120 + Math.sin(seed) * 20;
+                const ly = -sc * (0.15 + i * 0.12);
+                const lx = -sc * 0.45 - (seed % 30); // staggered
                 ctx.beginPath();
-                ctx.moveTo(-sc * 0.5, ly);
-                ctx.lineTo(-sc * 0.5 - len, ly);
+                ctx.moveTo(lx, ly);
+                ctx.lineTo(lx - len, ly);
                 ctx.stroke();
+
+                // Tiny spark at the end of some lines
+                if (_speed > 70 && i % 2 === 0) {
+                    ctx.fillStyle = '#fff';
+                    ctx.beginPath();
+                    ctx.arc(lx - len, ly, 2, 0, Math.PI * 2);
+                    ctx.fill();
+                }
             }
         }
-
         if (_gender === 'girl') {
             drawGirl(sc, phase, speedFactor);
         } else {

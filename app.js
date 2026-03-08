@@ -168,25 +168,39 @@
         updateSoundBar(db);
     }
 
-    function onTick(speed, distance) {
-        if (hudSpeed) hudSpeed.textContent = Math.round(speed);
-        if (hudDist) hudDist.textContent = Math.round(distance);
-    }
-
     function updateSoundBar(db) {
         if (!soundBar) return;
-        const cfg = GAME_CONFIG.VISUAL;
         const maxDb = GAME_CONFIG.AUDIO.MAX_SPEED / GAME_CONFIG.AUDIO.VOLUME_MULTIPLIER + GAME_CONFIG.AUDIO.SCREAM_THRESHOLD_DB;
         const pct = Math.min(db / maxDb, 1) * 100;
         soundBar.style.width = pct + '%';
-        soundBar.style.background =
-            db < cfg.SOUND_BAR_THRESHOLDS.LOW_MAX ? cfg.SOUND_BAR_COLORS.LOW :
-                db < cfg.SOUND_BAR_THRESHOLDS.MED_MAX ? cfg.SOUND_BAR_COLORS.MEDIUM :
-                    cfg.SOUND_BAR_COLORS.HIGH;
-        if (soundDbText) soundDbText.textContent = db.toFixed(1) + ' dB';
-        if (peakMarker) peakMarker.style.left = pct + '%';
+
+        // Update real-time dB text
+        if (soundDbText) {
+            soundDbText.textContent = `${db.toFixed(1)} dB`;
+        }
+
+        // Apply visual color shifts based on intensity
+        const cfg = GAME_CONFIG.VISUAL;
+        if (db < cfg.SOUND_BAR_THRESHOLDS.LOW_MAX) soundBar.style.backgroundColor = cfg.SOUND_BAR_COLORS.LOW;
+        else if (db < cfg.SOUND_BAR_THRESHOLDS.MED_MAX) soundBar.style.backgroundColor = cfg.SOUND_BAR_COLORS.MEDIUM;
+        else soundBar.style.backgroundColor = cfg.SOUND_BAR_COLORS.HIGH;
+
+        // Auto-update marker
+        if (peakMarker && pct > parseFloat(peakMarker.style.left || 0)) {
+            peakMarker.style.left = pct + '%';
+        }
     }
 
+    const hudMainPanel = document.getElementById('hud-main-panel');
+    function onTick(speed, distance) {
+        if (hudSpeed) hudSpeed.textContent = Math.round(speed);
+        if (hudDist) hudDist.textContent = Math.round(distance);
+
+        // HUD Jitter Effect at high speeds
+        if (hudMainPanel) {
+            hudMainPanel.classList.toggle('hud-shake', speed > 80);
+        }
+    }
     // ── Game Over ─────────────────────────────────────────────────────────────
     function onGameOver(stats) {
         lastStats = stats;

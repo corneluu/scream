@@ -401,133 +401,176 @@ body::before {
   height: 100%;
 }
 
-/* HUD overlay */
+/* HUD overlay - Redesigned for Central High Visibility */
 .hud {
   position: absolute;
   inset: 0;
   pointer-events: none;
   z-index: 20;
-  padding: 16px 20px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  align-items: center;
 }
 
-.hud-top {
+.hud-central {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(180deg, rgba(15, 15, 25, 0.8) 0%, rgba(10, 10, 20, 0.4) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 16px 40px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(78, 205, 196, 0.05);
+  margin-top: 10px;
 }
 
-.hud-panel {
-  background: rgba(10, 10, 20, 0.7);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 10px 16px;
-  backdrop-filter: blur(8px);
-  min-width: 110px;
+.hud-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .hud-label {
-  font-size: .65rem;
-  letter-spacing: 0.15em;
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: 0.25em;
   text-transform: uppercase;
   color: var(--text-muted);
   font-family: var(--font-game);
   margin-bottom: 2px;
 }
 
+.hud-value-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
 .hud-value {
   font-family: var(--font-game);
-  font-size: 1.4rem;
-  font-weight: 700;
+  font-size: 3.2rem;
+  /* Much larger */
+  font-weight: 900;
+  color: #fff;
+  line-height: 0.9;
+  text-shadow: 0 0 20px rgba(78, 205, 196, 0.5);
+}
+
+.hud-value.speed {
   color: var(--neon-cyan);
-  line-height: 1;
+  text-shadow: 0 0 25px rgba(78, 205, 196, 0.6);
+}
+
+.hud-value.distance {
+  font-size: 2rem;
+  color: var(--neon-yellow);
+  text-shadow: 0 0 20px rgba(255, 230, 109, 0.4);
 }
 
 .hud-unit {
-  font-size: .55rem;
+  font-size: 0.9rem;
+  font-weight: 800;
   color: var(--text-muted);
-  margin-left: 2px;
+  text-transform: lowercase;
 }
 
-.hud-char-badge {
-  background: rgba(10, 10, 20, 0.7);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 8px 14px;
-  font-size: .8rem;
-  font-weight: 600;
-  color: var(--neon-purple);
-  backdrop-filter: blur(8px);
-  align-self: center;
+.hud-divider {
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  margin: 8px 0;
 }
 
-/* Sound bar */
+/* Sound bar - Redesigned for Premium LED feel */
 .hud-bottom {
+  position: absolute;
+  bottom: 30px;
+  width: 100%;
   display: flex;
   justify-content: center;
 }
 
 .sound-bar-wrap {
-  background: rgba(10, 10, 20, 0.8);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 12px 20px;
-  min-width: 300px;
-  max-width: 460px;
-  width: 100%;
-  backdrop-filter: blur(8px);
+  background: rgba(10, 10, 20, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 16px 24px;
+  width: min(500px, 90vw);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
 .sound-bar-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
 .sound-bar-label {
   font-family: var(--font-game);
-  font-size: .6rem;
-  letter-spacing: 0.12em;
+  font-size: .8rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--text-muted);
 }
 
 .sound-db-text {
   font-family: var(--font-game);
-  font-size: .75rem;
-  font-weight: 600;
+  font-size: 1rem;
+  font-weight: 800;
   color: var(--neon-yellow);
+  text-shadow: 0 0 10px rgba(255, 230, 109, 0.3);
 }
 
 .sound-bar-track {
   position: relative;
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: 6px;
-  height: 12px;
-  overflow: visible;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  height: 18px;
+  /* Taller */
+  overflow: hidden;
+  padding: 3px;
 }
 
 .sound-bar-fill {
   height: 100%;
-  border-radius: 6px;
-  background: var(--neon-cyan);
-  transition: width .04s linear, background .15s;
-  box-shadow: 0 0 12px currentColor;
-  max-width: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #4ecdc4, #ffe66d, #ff6b6b);
+  background-size: 500px 100%;
+  transition: width .06s ease-out;
+  box-shadow: 0 0 15px rgba(78, 205, 196, 0.4);
+}
+
+/* Segmented LED overlay effect */
+.sound-bar-track::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(90deg,
+      transparent 0px,
+      transparent 4px,
+      rgba(10, 10, 20, 0.6) 4px,
+      rgba(10, 10, 20, 0.6) 6px);
+  background-size: 6px 100%;
+  pointer-events: none;
 }
 
 .peak-marker {
   position: absolute;
-  top: -3px;
-  width: 3px;
-  height: 18px;
-  background: white;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: #fff;
+  box-shadow: 0 0 10px #fff;
   border-radius: 2px;
-  transform: translateX(-50%);
-  opacity: 0.8;
+  z-index: 5;
   transition: left .1s;
 }
 
@@ -536,8 +579,36 @@ body::before {
   top: 0;
   bottom: 0;
   width: 2px;
-  background: rgba(255, 230, 109, .6);
-  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.4);
+  border-left: 1px dashed rgba(255, 255, 255, 0.8);
+  z-index: 4;
+}
+
+/* High Speed Effects */
+.hud-shake {
+  animation: hudJitter 0.15s infinite;
+}
+
+@keyframes hudJitter {
+  0% {
+    transform: translate(0, 0);
+  }
+
+  25% {
+    transform: translate(-1px, 1px);
+  }
+
+  50% {
+    transform: translate(1px, -1px);
+  }
+
+  75% {
+    transform: translate(-1px, -1px);
+  }
+
+  100% {
+    transform: translate(1px, 1px);
+  }
 }
 
 /* ── Pulse ring (start screen) ──────────────────────────────────────────────── */
