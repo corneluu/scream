@@ -17,6 +17,7 @@ const GameEngine = (() => {
     let _maxSpeed = 0;
     let _dbSamples = [];
     let _screamMs = 0;
+    let _lastDb = 0; // for real-time visual pulse
 
     // Callbacks
     let _onGameOver = null;
@@ -74,12 +75,46 @@ const GameEngine = (() => {
         const scrollRate = (_speed / GAME_CONFIG.AUDIO.MAX_SPEED) * 7.2;
         hallOffset = (hallOffset + scrollRate * dt) % 1;
 
+        const dbPulse = Math.max(0, (_lastDb - 30) / 70); // 0..1 range for loud sounds
+        const speedRatio = Math.min(_speed / GAME_CONFIG.AUDIO.MAX_SPEED, 1);
+
         // ── 1. Sky/wall background ──────────────────────────────────────────────
         const bgGrad = ctx.createLinearGradient(0, 0, 0, h);
-        bgGrad.addColorStop(0, '#08010f');
-        bgGrad.addColorStop(1, '#12062a');
+        bgGrad.addColorStop(0, '#020005');
+        bgGrad.addColorStop(1, '#0e041a');
         ctx.fillStyle = bgGrad;
         ctx.fillRect(0, 0, w, h);
+
+        // ── 1b. Vanishing Point Bloom ───────────────────────────────────────────
+        const vx = w * 0.5, vy = h * 0.44;
+        const bloomRadius = h * (0.12 + speedRatio * 0.45 + dbPulse * 0.25);
+        const bloomGrad = ctx.createRadialGradient(vx, vy, 0, vx, vy, bloomRadius);
+        bloomGrad.addColorStop(0, `rgba(220, 150, 255, ${0.25 + speedRatio * 0.4 + dbPulse * 0.3})`);
+        bloomGrad.addColorStop(0.3, `rgba(130, 80, 240, ${0.12 + speedRatio * 0.15})`);
+        bloomGrad.addColorStop(1, 'rgba(40, 0, 100, 0)');
+        ctx.fillStyle = bloomGrad;
+        ctx.fillRect(0, 0, w, h);
+
+        // ── 1c. Speed Warp Streaks ──────────────────────────────────────────────
+        if (_speed > 20) {
+            const streakCount = Math.floor(speedRatio * 15);
+            ctx.lineWidth = 1.5;
+            for (let i = 0; i < streakCount; i++) {
+                // Pseudo-random based on index and time
+                const seed = i * 1.57 + performance.now() * 0.002;
+                const angle = seed % (Math.PI * 2);
+                const distOffset = (seed * 0.3) % 1; // 0..1 depth
+                const p1 = hallProject(Math.cos(angle) * 4, Math.sin(angle) * 4, 1 - distOffset);
+                const p2 = hallProject(Math.cos(angle) * 4.5, Math.sin(angle) * 4.5, 1 - distOffset - 0.1);
+
+                const streakGrad = ctx.createLinearGradient(p1.x, p1.y, p2.x, p2.y);
+                streakGrad.addColorStop(0, 'rgba(255, 255, 255, 0)');
+                streakGrad.addColorStop(0.5, `rgba(100, 200, 255, ${speedRatio * 0.6})`);
+                streakGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+                ctx.strokeStyle = streakGrad;
+                ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+            }
+        }
 
         // ── 2. Draw floor & ceiling trapezoids ──────────────────────────────────
         // Far-near left/right walls use projected corners
@@ -152,8 +187,9 @@ const GameEngine = (() => {
 
         // ── 3. Perspective grid lines on floor & ceiling ────────────────────────
         const GRID_LINES = 10;
-        ctx.strokeStyle = C.neonLine;
-        ctx.lineWidth = 1;
+        const pulseWidth = 1 + dbPulse * 3;
+        ctx.strokeStyle = `rgba(200,180,255,${0.18 + dbPulse * 0.4})`;
+        ctx.lineWidth = pulseWidth;
 
         for (let i = 0; i <= GRID_LINES; i++) {
             const tx = lerp(-1, 1, i / GRID_LINES);
@@ -181,11 +217,25 @@ const GameEngine = (() => {
             ctx.beginPath(); ctx.moveTo(clN.x, clN.y); ctx.lineTo(crN.x, crN.y); ctx.stroke();
         }
 
-        // ── 4. Neon strip lights along walls ───────────────────────────────────
-        drawNeonStrip(corners.tNL, corners.tFL, C.neonL, 2);   // left top
-        drawNeonStrip(corners.bNL, corners.bFL, C.neonL, 1.5); // left bottom
-        drawNeonStrip(corners.tNR, corners.tFR, C.neonR, 2);   // right top
-        drawNeonStrip(corners.bNR, corners.bFR, C.neonR, 1.5); // right bottom
+        // ── 4. Neon strip lights along walls (Audio-reactive Pulse) ─────────────
+        const flare = 1 + dbPulse * 2.5;
+        drawNeonStrip(corners.tNL, corners.tFL, C.neonL, 2 * flare, 10 + dbPulse * 20);   // left top
+        drawNeonStrip(corners.bNL, corners.bFL, C.neonL, 1.5 * flare, 8 + dbPulse * 15); // left bottom
+        drawNeonStrip(corners.tNR, corners.tFR, C.neonR, 2 * flare, 10 + dbPulse * 20);   // right top
+        drawNeonStrip(corners.bNR, corners.bFR, C.neonR, 1.5 * flare, 8 + dbPulse * 15); // right bottom
+
+        // ── 4b. Wall Circuit Details ───────────────────────────────────────────
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = `rgba(255,255,255,${0.05 + speedRatio * 0.1})`;
+        for (let j = 0; j < 3; j++) {
+            const sideY = -0.5 + j * 0.5;
+            const lNear = hallProject(-1, sideY, hallOffset);
+            const lFar = hallProject(-1, sideY, 1);
+            ctx.beginPath(); ctx.moveTo(lNear.x, lNear.y); ctx.lineTo(lFar.x, lFar.y); ctx.stroke();
+            const rNear = hallProject(1, sideY, hallOffset);
+            const rFar = hallProject(1, sideY, 1);
+            ctx.beginPath(); ctx.moveTo(rNear.x, rNear.y); ctx.lineTo(rFar.x, rFar.y); ctx.stroke();
+        }
 
         // ── 5. Ceiling lamps ────────────────────────────────────────────────────
         drawCeilingLamps(corners, dt);
@@ -201,15 +251,15 @@ const GameEngine = (() => {
         }
     }
 
-    function drawNeonStrip(near, far, color, lw) {
+    function drawNeonStrip(near, far, color, lw, blur) {
         ctx.save();
         ctx.shadowColor = color;
-        ctx.shadowBlur = 14;
+        ctx.shadowBlur = blur;
+        ctx.strokeStyle = color;
+        ctx.lineWidth = lw;
         ctx.beginPath();
         ctx.moveTo(near.x, near.y);
         ctx.lineTo(far.x, far.y);
-        ctx.strokeStyle = color;
-        ctx.lineWidth = lw;
         ctx.stroke();
         ctx.restore();
     }
@@ -650,6 +700,7 @@ const GameEngine = (() => {
     }
 
     function pushDbSample(db) {
+        _lastDb = db;
         if (db > GAME_CONFIG.AUDIO.NOISE_FLOOR_DB) _dbSamples.push(db);
     }
 

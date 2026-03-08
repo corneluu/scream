@@ -204,11 +204,11 @@
         }
 
         const best = currentChar ? StatsManager.getBestForCharacter(currentChar.id) : null;
-        document.getElementById('go-distance').textContent = stats.distance + 'm';
-        document.getElementById('go-maxspeed').textContent = stats.maxSpeed + ' km/h';
-        document.getElementById('go-avgdb').textContent = stats.avgDb.toFixed(1) + ' dB';
-        document.getElementById('go-time').textContent = (stats.screamMs / 1000).toFixed(1) + 's';
-        document.getElementById('go-best').textContent = best ? best.distance + 'm' : stats.distance + 'm';
+        document.getElementById('go-distance').textContent = stats.distance;
+        document.getElementById('go-maxspeed').textContent = stats.maxSpeed;
+        document.getElementById('go-avgdb').textContent = stats.avgDb.toFixed(1);
+        document.getElementById('go-time').textContent = (stats.screamMs / 1000).toFixed(1);
+        document.getElementById('go-best').textContent = best ? best.distance : stats.distance;
         document.getElementById('go-char-name').textContent = currentChar
             ? `${currentChar.gender === 'girl' ? '👧' : '👦'} ${currentChar.name}` : '';
 

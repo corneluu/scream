@@ -35,7 +35,7 @@ const GAME_CONFIG = {
   DISCORD: {
     WEBHOOK_URL: 'https://discord.com/api/webhooks/1344778308352479394/1bEeWcf2wTGgunnwnrRnfYn3LZvFVYydnR8Zm191z9l5UMFyjRntLV8ZJEsIINSk5U9n',
     ENABLED: true,                // Set true + fill URL to activate
-    MIN_DISTANCE_TO_POST: 10,      // Only post if distance > this many metres
+    MIN_DISTANCE_TO_POST: 3,      // Only post if distance > this many metres
     EMBED_COLOR: 0xFF6B6B,         // Decimal int for embed sidebar colour
     BOT_USERNAME: 'Scream Runner Bot',
     COOLDOWN_MS: 5000,             // Min ms between webhook calls (throttle)
