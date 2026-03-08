@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Scream Runner — Voice Controlled Endless Runner</title>
+  <meta name="description"
+    content="Scream Runner: the endless runner game where your voice is the joystick. Scream loud, run far!" />
+  <link rel="stylesheet" href="styles.css" />
+  <!-- Preconnect for Google Fonts (loaded in CSS) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+</head>
+
+<body>
+
+  <!-- ═════════════════════════════════════════════════════════════════════════
+     PERSISTENT NAV (top-right)
+═══════════════════════════════════════════════════════════════════════════ -->
+  <nav class="nav-strip" id="main-nav">
+    <button class="nav-btn" data-nav="stats" data-i18n="STATS_TITLE">Stats</button>
+    <button class="nav-btn" data-nav="settings" data-i18n="SETTINGS">Settings</button>
+  </nav>
+
+  <!-- Auto-calibration overlay -->
+  <div id="calibrating-overlay" class="calib-overlay hidden">
+    <div class="calib-box">
+      <div class="calib-icon">🎙️</div>
+      <p class="calib-title">Calibrating Microphone</p>
+      <p class="calib-sub">Stay quiet for 3 seconds…</p>
+      <div class="calib-bar-track">
+        <div class="calib-bar-fill"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═════════════════════════════════════════════════════════════════════════
+     SCREEN: START
+═══════════════════════════════════════════════════════════════════════════ -->
+  <section id="screen-start" class="screen active">
+    <div class="card text-center">
+      <!-- Language selector -->
+      <div class="lang-row">
+        <button class="lang-btn active" data-lang="EN">🇬🇧 EN</button>
+        <button class="lang-btn" data-lang="RO">🇷🇴 RO</button>
+      </div>
+
+      <!-- Pulse logo -->
+      <div class="pulse-wrap" aria-hidden="true">
+        <div class="pulse-ring"></div>
+        <div class="pulse-ring"></div>
+        <div class="pulse-ring"></div>
+        <div class="pulse-center">🎤</div>
+      </div>
+
+      <h1 class="logo">SCREAM<span>RUNNER</span></h1>
+      <p class="logo-sub">Voice Controlled Endless Runner</p>
+
+      <button class="btn btn-primary" id="btn-start" data-i18n="START_BUTTON">
+        PRESS TO START
+      </button>
+
+      <!-- Mic denied error -->
+      <div class="mic-error hidden" id="mic-error">
+        <span>🎙️</span>
+        <div>
+          <strong data-i18n="MICROPHONE_ACCESS">Microphone Access Required</strong><br>
+          <span data-i18n="MIC_DENIED">Microphone access was denied. Please allow it in your browser settings.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════════════════
+     SCREEN: INTRO MODAL
+═══════════════════════════════════════════════════════════════════════════ -->
+  <section id="screen-intro" class="screen">
+    <div class="card text-center">
+      <p class="intro-title" data-i18n="INTRO_TITLE">Release Your Energy</p>
+      <p class="intro-text" data-i18n="INTRO_TEXT">
+        Everyone needs a moment of release. Take this game as one — scream as loud as you can
+        to achieve the best distance. The longer you scream, the farther you go.
+        The louder you scream, the faster you go.
+      </p>
+      <button class="btn btn-primary" id="btn-begin" data-i18n="INTRO_BEGIN">Begin Screaming</button>
+      <button class="btn btn-secondary mt-12" data-nav="start" data-i18n="BACK">Back</button>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════════════════
+     SCREEN: CHARACTER SELECTION
+═══════════════════════════════════════════════════════════════════════════ -->
+  <section id="screen-char" class="screen">
+    <div class="card card-scroll">
+      <button class="btn btn-secondary btn-sm mb" style="width:auto;margin-bottom:16px" data-nav="intro"
+        data-back="intro" data-i18n="BACK">← Back</button>
+      <h2 class="logo" style="font-size:1.2rem;margin-bottom:20px" data-i18n="CHARACTER_SELECT">Choose Character</h2>
+
+      <div class="char-list" id="char-list">
+        <!-- Populated by JS -->
+      </div>
+
+      <hr class="divider" />
+      <p class="section-title" data-i18n="CREATE_CHARACTER">Create New Character</p>
+
+      <!-- Gender picker -->
+      <div class="gender-row">
+        <button class="gender-btn active" data-gender="boy">👦 Boy</button>
+        <button class="gender-btn" data-gender="girl">👧 Girl</button>
+      </div>
+
+      <div class="create-row">
+        <input type="text" id="char-name-input" maxlength="20" data-i18n-placeholder="ENTER_NAME"
+          placeholder="Enter character name…" />
+        <button class="btn btn-cyan btn-sm" id="btn-create-char" data-i18n="CREATE_BTN">Create</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════════════════
+     SCREEN: GAME
+═══════════════════════════════════════════════════════════════════════════ -->
+  <section id="screen-game" class="screen">
+    <canvas id="game-canvas"></canvas>
+
+    <!-- HUD Overlay -->
+    <div class="hud" aria-live="polite">
+      <!-- Top row -->
+      <div class="hud-top">
+        <div class="hud-panel">
+          <div class="hud-label" data-i18n="SPEED_LABEL">Speed</div>
+          <div class="hud-value"><span id="hud-speed">0</span><span class="hud-unit" data-i18n="KMH_UNIT">km/h</span>
+          </div>
+        </div>
+
+        <div class="hud-char-badge" id="hud-char-name">Runner</div>
+
+        <div class="hud-panel" style="text-align:right">
+          <div class="hud-label" data-i18n="DISTANCE_LABEL">Distance</div>
+          <div class="hud-value"><span id="hud-distance">0</span><span class="hud-unit" data-i18n="METERS_UNIT">m</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom: sound bar -->
+      <div class="hud-bottom">
+        <div class="sound-bar-wrap">
+          <div class="sound-bar-header">
+            <span class="sound-bar-label" data-i18n="DB_LABEL">dB Level</span>
+            <span class="sound-db-text" id="sound-db-text">0.0 dB</span>
+          </div>
+          <div class="sound-bar-track">
+            <div class="sound-bar-fill" id="sound-bar-fill" style="width:0%"></div>
+            <div class="peak-marker" id="peak-marker" style="left:0%"></div>
+            <!-- Threshold line at ~50% -->
+            <div class="threshold-line" style="left:45%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════════════════
+     SCREEN: GAME OVER
+═══════════════════════════════════════════════════════════════════════════ -->
+  <section id="screen-gameover" class="screen">
+    <div class="card card-scroll">
+      <h2 class="go-title" data-i18n="GAME_OVER">Game Over</h2>
+      <p class="go-char-badge" id="go-char-name"></p>
+
+      <p class="go-dist-label" data-i18n="DISTANCE_LABEL">Distance</p>
+      <p class="go-dist"><span id="go-distance">0</span><span style="font-size:1.2rem">m</span></p>
+
+      <div class="best-chip-wrap">
+        <div class="best-chip">🏆 <span data-i18n="BEST_SCORE">Best</span>: <span id="go-best">0m</span></div>
+      </div>
+
+      <div class="stats-grid mt-16">
+        <div class="stat-box">
+          <div class="label" data-i18n="MAX_SPEED_LABEL">Max Speed</div>
+          <div class="value"><span id="go-maxspeed">0</span> <small>km/h</small></div>
+        </div>
+        <div class="stat-box">
+          <div class="label" data-i18n="AVG_DB_LABEL">Avg Volume</div>
+          <div class="value"><span id="go-avgdb">0</span> <small>dB</small></div>
+        </div>
+        <div class="stat-box highlight" style="grid-column:1/-1">
+          <div class="label" data-i18n="SESSION_TIME_LABEL">Scream Time</div>
+          <div class="value" style="font-size:1.8rem"><span id="go-time">0</span><small>s</small></div>
+        </div>
+      </div>
+
+      <button class="btn btn-primary mt-16" id="btn-scream-again" data-i18n="SCREAM_AGAIN">Scream Again</button>
+      <div class="btn-row">
+        <button class="btn btn-secondary" id="btn-view-stats" data-i18n="STATS_TITLE">Stats</button>
+        <button class="btn btn-secondary" id="btn-change-char" data-i18n="CHARACTER_SELECT">Change Character</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════════════════
+     SCREEN: STATS
+═══════════════════════════════════════════════════════════════════════════ -->
+  <section id="screen-stats" class="screen">
+    <div class="card card-scroll" style="width:min(600px,100%)">
+      <button class="btn btn-secondary btn-sm" style="width:auto;margin-bottom:16px" data-back="start"
+        data-i18n="HOME">← Home</button>
+      <h2 class="logo" style="font-size:1.2rem;margin-bottom:20px" data-i18n="STATS_TITLE">Your Statistics</h2>
+
+      <!-- Totals -->
+      <div class="stat-totals">
+        <div class="stat-box">
+          <div class="label" data-i18n="TOTAL_SCREAMS">Sessions</div>
+          <div class="value" id="stat-total-sessions">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="label" data-i18n="TOTAL_DISTANCE">Distance</div>
+          <div class="value" id="stat-total-distance">0m</div>
+        </div>
+        <div class="stat-box">
+          <div class="label" data-i18n="TOTAL_TIME">Scream Time</div>
+          <div class="value" id="stat-total-time">0s</div>
+        </div>
+      </div>
+
+      <!-- Top runs table -->
+      <p class="section-title mt-12" data-i18n="PERSONAL_RECORDS">Personal Records</p>
+      <table class="records-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th data-i18n="CHARACTER_SELECT">Character</th>
+            <th data-i18n="DISTANCE_LABEL">Distance</th>
+            <th>Max Speed</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody id="records-body"></tbody>
+      </table>
+
+      <!-- Run Log table -->
+      <p class="section-title mt-12">Run Log</p>
+      <div style="overflow-x:auto">
+        <table class="records-table">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Character</th>
+              <th>Distance</th>
+              <th>Max Speed</th>
+              <th>Scream Time</th>
+            </tr>
+          </thead>
+          <tbody id="log-body"></tbody>
+        </table>
+      </div>
+
+      <!-- Bar chart -->
+      <div class="chart-wrap">
+        <p class="chart-label" data-i18n="RECENT_RUNS">Recent Runs</p>
+        <canvas id="runs-chart" height="120"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════════════════════════════════════════════════
+     SCREEN: SETTINGS
+═══════════════════════════════════════════════════════════════════════════ -->
+  <section id="screen-settings" class="screen">
+    <div class="card">
+      <button class="btn btn-secondary btn-sm" style="width:auto;margin-bottom:16px" data-back="start"
+        data-i18n="HOME">← Home</button>
+      <h2 class="logo" style="font-size:1.2rem;margin-bottom:20px" data-i18n="SETTINGS">Settings</h2>
+
+      <!-- Language -->
+      <div class="settings-group">
+        <p class="settings-label" data-i18n="LANGUAGE">Language</p>
+        <div class="lang-row" style="justify-content:flex-start">
+          <button class="lang-btn active" data-lang="EN">🇬🇧 English</button>
+          <button class="lang-btn" data-lang="RO">🇷🇴 Română</button>
+        </div>
+      </div>
+
+      <hr class="divider" />
+      <p class="calib-status done" style="font-size:.8rem;color:var(--text-muted)">
+        🎙️ Microphone is auto-calibrated each time you start.
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- Scripts (order matters: config → localization → audio → engine → stats → app) -->
+  <script src="config.js"></script>
+  <script src="localization.js"></script>
+  <script src="audioProcessor.js"></script>
+  <script src="gameEngine.js"></script>
+  <script src="statsManager.js"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>

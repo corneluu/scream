@@ -1,0 +1,13 @@
+# Ignore OS & editor clutter
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# Node (if ever used for tooling)
+node_modules/
+
+# Local dev artifacts
+*.log
